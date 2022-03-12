@@ -1,0 +1,30 @@
+(node:6408) [DEP0005] DeprecationWarning: Buffer() is deprecated due to security and usability issues. Please use the Buffer.alloc(), Buffer.allocUnsafe(), or Buffer.from() methods instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+Error: Cannot find module 'C:\inetpub\wwwroot\.next\server\pages\_error.js'
+Require stack:
+- C:\inetpub\wwwroot\node_modules\next\dist\server\require.js
+- C:\inetpub\wwwroot\node_modules\next\dist\server\load-components.js
+- C:\inetpub\wwwroot\node_modules\next\dist\server\next-server.js
+- C:\inetpub\wwwroot\node_modules\next\dist\server\next.js
+- C:\inetpub\wwwroot\server.js
+- C:\Program Files\iisnode\interceptor.js
+    at Function.Module._resolveFilename (node:internal/modules/cjs/loader:933:15)
+    at Function.mod._resolveFilename (C:\inetpub\wwwroot\node_modules\next\dist\build\webpack\require-hook.js:171:28)
+    at Function.Module._load (node:internal/modules/cjs/loader:778:27)
+    at Module.require (node:internal/modules/cjs/loader:1005:19)
+    at require (node:internal/modules/cjs/helpers:102:18)
+    at Object.requirePage (C:\inetpub\wwwroot\node_modules\next\dist\server\require.js:48:12)
+    at Object.loadComponents (C:\inetpub\wwwroot\node_modules\next\dist\server\load-components.js:58:23)
+    at Server.findPageComponents (C:\inetpub\wwwroot\node_modules\next\dist\server\next-server.js:1243:63)
+    at Server.renderErrorToResponse (C:\inetpub\wwwroot\node_modules\next\dist\server\next-server.js:1712:37)
+    at async Server.pipe (C:\inetpub\wwwroot\node_modules\next\dist\server\next-server.js:1158:25) {
+  code: 'MODULE_NOT_FOUND',
+  requireStack: [
+    'C:\\inetpub\\wwwroot\\node_modules\\next\\dist\\server\\require.js',
+    'C:\\inetpub\\wwwroot\\node_modules\\next\\dist\\server\\load-components.js',
+    'C:\\inetpub\\wwwroot\\node_modules\\next\\dist\\server\\next-server.js',
+    'C:\\inetpub\\wwwroot\\node_modules\\next\\dist\\server\\next.js',
+    'C:\\inetpub\\wwwroot\\server.js',
+    'C:\\Program Files\\iisnode\\interceptor.js'
+  ]
+}
