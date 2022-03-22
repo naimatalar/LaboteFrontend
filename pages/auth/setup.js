@@ -5,7 +5,7 @@ import CreateUser from './createUser';
 
 export default function Setup() {
     useEffect(() => {
-        localStorage.removeItem("usrtknantegra");
+        localStorage.removeItem("usrtknbalotetknenter");
 
     }, [])
     const [value, setValue] = useState("");

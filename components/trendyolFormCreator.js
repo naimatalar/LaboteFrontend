@@ -288,7 +288,7 @@ export default function TrendyolFormCreator({ data, submit = (marketPlace, data)
                     listErrors.push("Desi")
 
                 }
-                debugger;
+                
                 // if (!values["salePrice"]) {
                 //     errors["salePrice"] = "Satış Fiyatı Zorunlu"
                 //     listErrors.push("Satış Fiyatı")
@@ -443,7 +443,7 @@ export default function TrendyolFormCreator({ data, submit = (marketPlace, data)
                                     <div className='row col-12 p-0'><b className='col-12' style={{ fontSize: 17 }}>Bü ürün {varyantList.length} varyant içeriyor</b><br></br>
                                         <i className='col-12 mb-2' style={{ fontSize: 15 }}>Varyantı seçtikten sonra ürün ek özelliklerini girip sanalpazara kaydetme işi yapabilirsiniz</i></div>
                                     {varyantList.map((item, key) => {
-                                        debugger;
+                                    
                                         var existVariant = variants.find(x => x.stockCode == item.sku)
                                         if (existVariant) {
                                             return false 

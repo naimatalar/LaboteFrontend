@@ -1,14 +1,19 @@
 
 import React, { useEffect, useState } from 'react';
 import { PostNoneToken } from '../api/crud';
+import CreateUser from './createUser';
+
 
 export default function Login() {
     const [userName, setUserName] = useState();
     const [password, setPassword] = useState();
     const [isError, setIsError] = useState();
     const [buttonLoad, setButtonLoad] = useState(false)
+    const [register, setRegister] = useState(false)
+
+
     useEffect(()=>{
-     localStorage.removeItem("usrtknantegra");
+     localStorage.removeItem("usrtknbalotetknenter");
     },[])
     const login = async () => {
         setButtonLoad(true)
@@ -26,11 +31,13 @@ export default function Login() {
             return false;
         }
 
-        localStorage.setItem("usrtknantegra", d.token)
+        localStorage.setItem("usrtknbalotetknenter", d.token)
 
         location.reload();
     }
-
+if (register) {
+    return <CreateUser></CreateUser>
+}
     return <div className="page-content">
         <div className="content-wrapper">
             <div className="content d-flex justify-content-center align-items-center">
@@ -73,6 +80,9 @@ export default function Login() {
 
                         <div className="text-center">
                             <a href="login_password_recover.html">Şifremi unmuttum</a>
+                        </div>
+                            <div className="text-center">
+                            <a href="javascript:void(0)" onClick={()=>{setRegister(true)}}>Kayıt Ol</a>
                         </div>
                     </div>
                 </div>

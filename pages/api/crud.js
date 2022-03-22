@@ -3,7 +3,7 @@ import Axios from 'axios'
 
 
 // export const apiConstant = "https://api.kredi.com.tr";
-export const apiConstant = "http://localhost:57073";
+export const apiConstant = "http://localhost:58073";
 export const antegraSystem = "http://localhost:2354/api/";
 
 const masterUrl = apiConstant + "/api/";
@@ -14,7 +14,7 @@ export const GetWithToken = async (url) => {
     {
         headers: {
             'Content-Type': 'application/Json',
-            Authorization: 'Bearer ' + localStorage.getItem("usrtknantegra")
+            Authorization: 'Bearer ' + localStorage.getItem("usrtknbalotetknenter")
         }
     }
     try {
@@ -76,7 +76,7 @@ export const PostWithToken = async (url, data) => {
     {
         headers: {
             'Content-Type': 'application/Json',
-            Authorization: 'Bearer ' + localStorage.getItem("usrtknantegra")
+            Authorization: 'Bearer ' + localStorage.getItem("usrtknbalotetknenter")
         },
         onUploadProgress: progressEvent => {
             

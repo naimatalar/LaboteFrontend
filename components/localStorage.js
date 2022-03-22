@@ -6,7 +6,7 @@ export function addOrUpdateStorage(key, value) {
     localStorage.setItem(key, value)
 
 }
-export   function getMerchantFromStrorage () {
+export   function getLaboratoryFromStorage () {
     
     try {
   

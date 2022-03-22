@@ -7,7 +7,7 @@ import App from "../layout/assets/js/app"
 import Link from 'next/link';
 import Router, { useRouter } from 'next/router';
 import PermissionCheck from '../components/permissioncheck';
-import { addOrUpdateStorage, getMerchantFromStrorage, storageMercahtKey } from '../components/localStorage';
+import { addOrUpdateStorage, getLaboratoryFromStorage, storageMercahtKey } from '../components/localStorage';
 
 
 function Layout({ children, permissionControl = true }) {
@@ -27,6 +27,7 @@ function Layout({ children, permissionControl = true }) {
     const [permission, setPermission] = useState(null)
     const [merhcnatListItems, setMerchantListItems] = useState([])
     const [updatePage, setUpdatePage] = useState()
+    const [isPageOk, setIsPageOk] = useState(false)
 
     useEffect(() => {
         start()
@@ -47,20 +48,20 @@ function Layout({ children, permissionControl = true }) {
         setUserData(data.data)
         setMenuList(data.data.menuList)
 
-        var merchantList = await GetWithToken("AntegraMerchant/GetAllCurrentAntegraMerchant").then(x => { return x.data })
+        var merchantList = await GetWithToken("Laboratory/GetAllCurrentLaboratory").then(x => { return x.data })
         if (merchantList.data) {
             var mercahntDrop = merchantList.data?.map((x, y) => { return { value: x.id, label: x.name } })
-            
-            if (!mercahntDrop?.length > 0 && pagePath[pagePath.length - 1] != "bayi-tanimlari") {
-                Router.push({ pathname: "/yonetimsel-araclar/bayi-tanimlari" })
+
+            if (!mercahntDrop?.length > 0 && pagePath[pagePath.length - 1] != "laboratuvar-tanimlari") {
+                Router.push({ pathname: "/sistem-tanimlama/laboratuvar-tanimlama" })
             }
             setMerchantListItems(mercahntDrop);
-          
-            var mercahntStroge= getMerchantFromStrorage()
-            
+
+            var mercahntStroge = getLaboratoryFromStorage()
+
             if (mercahntDrop?.filter(x => { return x.value == mercahntStroge?.value }).length == 0) {
                 addOrUpdateStorage(storageMercahtKey, JSON.stringify(mercahntDrop[0]))
-            } 
+            }
 
         }
 
@@ -76,7 +77,7 @@ function Layout({ children, permissionControl = true }) {
                         {data.data.menuList?.filter((x) => { return x.parentId == item.id })?.map((jitem, jkey) => {
                             return <li className="nav-item" key={jkey}>
                                 <Link href={"/" + item.pageUrl + "/" + jitem.pageUrl}>
-                                    <a className={"nav-link " + (pagePath.includes(jitem.pageUrl) && "active")}>{jitem.pageName}</a>
+                                    <a className={"nav-link " + (pagePath.includes(jitem.pageUrl) && "active")}> {(pagePath.includes(jitem.pageUrl) && <i className='fa fa-arrow-right mr-1'></i>)} {jitem.pageName}</a>
                                 </Link>
                             </li>
 
@@ -91,7 +92,7 @@ function Layout({ children, permissionControl = true }) {
                         <a href={"/" + item.pageUrl} className="nav-link">
                             <i className={item.iconName}></i>
                             <span>{item.pageName}
-                                {item.pageUrl == "dashboard" && <span className="d-block font-weight-normal opacity-50">Antegra</span>}
+                                {item.pageUrl == "dashboard" && <span className="d-block font-weight-normal opacity-50"></span>}
                             </span>
                             {/* <span className="badge bg-blue-400 align-self-center ml-auto">2.2</span> */}
                         </a>
@@ -109,10 +110,13 @@ function Layout({ children, permissionControl = true }) {
             }
         }, 100);
 
-
+        setIsPageOk(true)
 
     }
     if (permission == null) {
+        return <></>
+    }
+    if (!isPageOk) {
         return <></>
     }
     return (
@@ -148,10 +152,10 @@ function Layout({ children, permissionControl = true }) {
                         <DropdownToggle className='merchant-toggle-button'>
                             <i className="fas fa-store"></i>
                             {
-                                getMerchantFromStrorage()?.label && <span className=" ml-2">{getMerchantFromStrorage()?.label}</span>
+                                getLaboratoryFromStorage()?.label && <span className=" ml-2">{getLaboratoryFromStorage()?.label}</span>
                             }
                             {
-                                !getMerchantFromStrorage()?.label && <span className=" ml-2">Bayi Seçiniz</span>
+                                !getLaboratoryFromStorage()?.label && <span className=" ml-2">Laboratuvar Seçiniz</span>
                             }
 
                         </DropdownToggle>
@@ -182,13 +186,13 @@ function Layout({ children, permissionControl = true }) {
 
 
                                             <li className="mb-2 row justify-content-center">
-                                                <b >Tanımlı Bayi Bunlunamadı</b>
-                                                <b className='mb-2' style={{ color: "red", textAlign: "center" }}>Bayi tanımlamama gerekli</b>
+                                                <b >Tanımlı Laboratuvar Bunlunamadı</b>
+                                                <b className='mb-2' style={{ color: "red", textAlign: "center",fontSize: 11 }}><i className='fa fa-exclamation-triangle'></i> Laboratuvar tanımlama gerekli <i className='fa fa-exclamation-triangle'></i> </b>
 
-
-                                                <Link href={"/yonetimsel-araclar/bayi-tanimlari"} >
+                                                <i className='text-center mb-2'>** Eğer laboratuvar tanımlama yetkiniz yok ise lütfen yöneticinizle görüşün</i>
+                                                <Link href={"/yonetimsel-araclar/laboratuvar-tanimlari"} >
                                                     {/* <a className={"nav-link " + (pagePath.includes(jitem.pageUrl) && "active")}>{jitem.pageName}</a> */}
-                                                    <a className={"btn btn-warning col-12"}>Bayi Tanımla</a>
+                                                    <a className={"btn btn-warning col-12"}>Laboratuvar Tanımla</a>
 
                                                 </Link>
 
@@ -241,7 +245,7 @@ function Layout({ children, permissionControl = true }) {
                             <div>  <a href="#" className="dropdown-item"><i className="icon-user-plus"></i> Ayarlar</a></div>
                             <div><a href="#" className="dropdown-item"><i className="icon-cog5"></i> Kullanıcılar</a></div>
 
-                            <div><a href="#" onClick={() => { localStorage.removeItem("usrtknantegra"); location.reload(); }} className="dropdown-item"><i className="icon-switch2"></i> Çıkış</a></div>
+                            <div><a href="#" onClick={() => { localStorage.removeItem("usrtknbalotetknenter"); location.reload(); }} className="dropdown-item"><i className="icon-switch2"></i> Çıkış</a></div>
                         </DropdownMenu>
                     </Dropdown>
 

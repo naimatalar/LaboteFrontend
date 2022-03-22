@@ -8,7 +8,7 @@ import { confirmAlert } from 'react-confirm-alert';
 import ReactPaginate from 'react-paginate';
 import { PriceSplitter } from './pricesptitter';
 
-export default function DataTable({ Refresh = null, Title, Description, Headers = [[] || { text: undefined, header: undefined,dynamicButton:undefined, onClick: undefined }], DataUrl, Pagination = undefined, HeaderButton = { text: "", action: (e) => { } }, EditButton = (e) => { }, DeleteButton = (e) => { }, HideButtons = false }) {
+export default function DataTable({ Refresh = null, Title, Description, Headers = [[] || { text: undefined, header: undefined, dynamicButton: undefined, onClick: undefined }], DataUrl, Pagination = undefined, HeaderButton = { text: "", action: (e) => { } }, EditButton = (e) => { }, DeleteButton = (e) => { }, HideButtons = false }) {
 
     const [data, setData] = useState([])
     const [toggleActions, setToggleActions] = useState({ toggle: false, key: 0 })
@@ -21,22 +21,23 @@ export default function DataTable({ Refresh = null, Title, Description, Headers 
         start()
     }, [Refresh])
     const start = async () => {
+        
         if (Pagination) {
             var d = await GetWithToken(DataUrl + "/" + Pagination).then(x => { return x.data })
             setSelectedPage(Pagination)
-
+            setData(d.data.list)
         } else {
             var d = await GetWithToken(DataUrl).then(x => { return x.data })
-
-        }
-        if (d.data.pageNumber) {
-            setData(d.data.list)
-
-            setPagination(d.data.totalCount);
-        } else {
             setData(d.data)
-        }
-        
+        } 
+        // if (d.data?.pageNumber) {
+
+
+        //     setPagination(d.data.totalCount);
+        // } else {
+
+        // }
+
 
     }
     const paginationClick = async (data) => {
@@ -114,7 +115,7 @@ export default function DataTable({ Refresh = null, Title, Description, Headers 
 
                         return <tr key={key + 5}>
                             {Headers?.map((jitem, jkey) => {
-                            
+
                                 if (jitem?.header) {
 
                                     if (jitem?.dynamicButton) {

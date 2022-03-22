@@ -16,7 +16,7 @@ export default function Index() {
     const [roles, setRoles] = useState([])
     const [loading, setLoading] = useState(true)
     const [refreshDataTable, setRefreshDatatable] = useState(null)
-    const [merchants, setMerchants] = useState([])
+    const [laboratuvar, setLaboratuvar] = useState([])
 
     useEffect(() => {
 
@@ -28,16 +28,14 @@ export default function Index() {
         for (const iterator of roles.data) {
             roleSelectList.push({ id: iterator.name, text: iterator.name })
         }
-
-        var merc = await GetWithToken("AntegraMerchant/GetAllAntegraMerchantByAdmin").then(x => { return x.data }).catch(x => { return false })
-        var merchantList = []
-        
-        for (const iterator of merc.data) {
-            merchantList.push({ id: iterator.id, text: iterator.name })
-        }
-        setMerchants(merchantList)
         setRoles(roleSelectList)
 
+        var labs = await GetWithToken("Laboratory/GetCurrentTopicLaboratory").then(x => { return x.data }).catch(x => { return false })
+        var labList = []
+        for (const iterator of labs.data) {
+            labList.push({ id: iterator.id, text: iterator.name })
+        }
+        setLaboratuvar(labList)
         setLoading(false)
     }
     const closeModal = () => {
@@ -85,7 +83,7 @@ export default function Index() {
         setHiddenPassordField(true)
         var d = await GetWithToken("UserManager/GetUserById/" + data.id).then(x => { return x.data }).catch((e) => { AlertFunction("", e.response.data); return false })
         d.data.roles = d.data.roles.map((x) => { return x.text })
-        d.data.merchantList = d.data.merchantList.map((x) => { return x })
+        d.data.laboratuvarList = d.data.laboratuvarList.map((x) => { return x })
 
 
         setInitialData(d.data)
@@ -113,7 +111,7 @@ export default function Index() {
                             },
 
                         },
-                     
+
                         {
                             props: {
                                 name: "firstName",
@@ -167,13 +165,13 @@ export default function Index() {
                         },
                         {
                             props: {
-                                name: "merchantList",
+                                name: "laboratuvarList",
                                 type: "listselect",
                                 className: "form-control",
-                                label: "Bayi Tanımla",
+                                label: "Laboratuvar Atama",
                                 required: "required"
                             },
-                            data: merchants,
+                            data: laboratuvar,
                             rowCssClass: "col-12 col-md-6 col-lg-6"
                         },
                         {
@@ -201,7 +199,8 @@ export default function Index() {
                         email: "",
                         roles: [],
                         password: "M" + Math.random().toString(36).slice(-5) + "2!",
-                        merchantList: []
+                  
+                        laboratuvarList: []
 
                     } : initialData}
                     submit={submit}

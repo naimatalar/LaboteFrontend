@@ -37,18 +37,14 @@ function Antegra({ Component, pageProps }) {
     setLoading(false)
   }
   if (!loading) {
-    if (checkData?.userExist && checkData?.auth && checkData?.appInfo) {
+    if (checkData?.userExist && checkData?.auth) {
       return <Component {...pageProps} />
     }
-    if (checkData?.userExist && !checkData?.auth) {
+    if (!checkData?.auth) {
+      
       return <Login></Login>
     }
-    if (!checkData?.userExist && checkData?.appInfo) {
-      return <CreateUser></CreateUser>
-    }
-    if (!checkData?.appInfo && !checkData?.userExist) {
-      return <Setup></Setup>
-    }
+
 
   }
 
