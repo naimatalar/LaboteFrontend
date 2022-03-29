@@ -20,23 +20,31 @@ export default function Index() {
     const [refreshDatatable, setRefreshDatatable] = useState(new Date())
     const [selectedLaboratory, setSelectedLaboratory] = useState();
     const [loading, setLoading] = useState(true)
+    const [pageRefresh, setPageRefresh] = useState(new Date())
+
     // Modal open state
     const [modal, setModal] = React.useState(false);
- 
+    const [devices, setDevices] = React.useState([]);
+    const [selectAll, setSelectAll] = React.useState(false);
+
     const toggleModal = () => setModal(!modal);
     const [modalSetUser, setModalSetUser] = React.useState(false);
-    const toggleSetUserModal = () => {setModalSetUser(!modalSetUser); if(modalSetUser){setRefreshDatatable(new Date())}};
+    const toggleSetUserModal = () => { setModalSetUser(!modalSetUser); if (modalSetUser) { setRefreshDatatable(new Date()) } };
     const [modalDevice, setModaDevice] = React.useState(false);
-    const toggleDeviceModal = () => {setModaDevice(!modalDevice) ;if(modalDevice){setRefreshDatatable(new Date())}};
+    const toggleDeviceModal = () => { setModaDevice(!modalDevice); if (modalDevice) { setRefreshDatatable(new Date()) } };
+    const [selectedDevices, setSelectedDevices] = useState([]);
     useEffect(() => {
 
         start();
+
     }, [])
 
     const start = async () => {
 
         setLoading(false)
-        // var laborat = await GetWithToken("Laboratory/GetCurrentTopicLaboratory").then(x => { return x.data }).catch(x => { return false })
+        var laborat = await GetWithToken("Device/GetAllDevicesByTopic").then(x => { return x.data }).catch(x => { return false })
+
+        setDevices(laborat.data)
         // var roleSelectList = []
         // setRoles(roleSelectList)
     }
@@ -86,6 +94,21 @@ export default function Index() {
         toggleModal(true);
 
     }
+    const selectAllControl = async (x) => {
+
+        var ssa = devices.map((item, key) => { return item.id })
+        debugger
+        if (x.target.checked) {
+            setSelectAll(true)
+            setSelectedDevices(devices.map((item, key) => { return item.id }))
+        } else {
+            setSelectAll(false)
+            setSelectedDevices([])
+
+        }
+        setPageRefresh(new Date())
+    }
+
 
     return (
         <>{
@@ -96,26 +119,29 @@ export default function Index() {
             <Layout>
                 <PageHeader title="Sistem & Tanımlama" map={[
                     { url: "", name: "Sistem & Tanımlama" },
-                    { url: "laboratuvar-tanimlari", name: "Laboratuvar Tanimlari" }]}>
+                    { url: "Tetkik-tanimlari", name: "Tetkik Tanimlari" }]}>
 
                 </PageHeader>
 
 
                 <Modal isOpen={modal}
+                    size="lg"
                     toggle={toggleModal}
                     modalTransition={{ timeout: 100 }}>
-                  <ModalHeader cssModule={{ 'modal-title': 'w-100 text-center' }}>
-                            <div className="d-flex justify-content-center mb-2">
-                            </div>
-                            <div className="d-flex ">
-                                <p>Laboratuvar <b>Tanımlama</b> Formu</p>
-                            </div>
-                        </ModalHeader>  <ModalBody>
-                        
+                    <ModalHeader cssModule={{ 'modal-title': 'w-100 text-center' }}>
+                        <div className="d-flex justify-content-center mb-2">
+                        </div>
+                        <div className="d-flex ">
+                            <p>Tetkik <b>Tanımlama</b> Formu</p>
+                        </div>
+                    </ModalHeader>  <ModalBody>
+
                         <Formik
                             initialValues={initialValues}
                             validate={values => {
                                 const errors = {};
+                                
+                             
                                 if (!values.name) {
                                     errors.name = 'Bu alan zorunludur';
                                 }
@@ -123,8 +149,10 @@ export default function Index() {
                             }}
                             onSubmit={(values, { setSubmitting }) => {
                                 values.code = ""
+                                values.sampleExaminationDevices = selectedDevices
+                              
                                 setTimeout(async () => {
-                                    submit(values)
+                                    // submit(values)
                                     setSubmitting(false);
                                 }, 400);
                             }}
@@ -136,17 +164,55 @@ export default function Index() {
                                         <Field type="hidden" name="id" />
                                         <div className='col-6 mb-3'>
                                             <ErrorMessage name="name" component="div" className='text-danger danger-alert-form' />
-                                            <label className='input-label'>Laboratuvar Adı</label>
+                                            <label className='input-label'>Tetkik Adı</label>
                                             <Field type="text" id="name" className="form-control" name="name" />
                                         </div>
+                                        <div className='col-6 mb-3'>
+                                            <ErrorMessage name="sampleMethod" component="div" className='text-danger danger-alert-form' />
+                                            <label className='input-label'>Metod</label>
+                                            <Field type="text" id="sampleMethod" className="form-control" name="sampleMethod" />
+                                        </div>
+                                        <div className='col-12 mb-3 row'>
+                                            <div className='col-12 p-0 mb-1'>
+                                                <b className='mt-2'>Tetkik Sırasında Olası Kullanılacak Cihazlar</b>
+                                                <div className='mt-2 select-all-label'>
+                                                    {
+                                                        selectAll && <label>  <input  checked={true}  type={"checkbox"} onBlur={selectAllControl}   onChange={selectAllControl} ></input> Tümünü Seç</label>
+                                                    }
+                                                    {
+                                                        !selectAll && <label>  <input type={"checkbox"} onChange={selectAllControl} onBlur={selectAllControl}   ></input> Tümünü Seç</label>
+                                                    }
+                                                </div>
+                                            </div>
+                                            {
+                                                pageRefresh &&
+                                                devices.map((item, key) => {
+
+
+                                                    if (selectAll) {
+                                                        return <div key={key} className="col-3"> <label> <input checked value={item.id} type="checkbox" onChange={(x) => { setSelectAll(false); handleChange(x); setSelectedDevices(values.sampleExaminationDevices); setPageRefresh(new Date()) }} onBlur={(x) => { handleBlur(x); setSelectedDevices(values.sampleExaminationDevices); setPageRefresh(new Date()) }} name='sampleExaminationDevices'></input> {item.name+" "+item.brand}</label>  </div>
+                                                    } else {
+                                                        return <div key={key} className="col-3"> <label> <input value={item.id} type="checkbox" onChange={(x) => { setSelectAll(false); setSelectedDevices(values.sampleExaminationDevices); setPageRefresh(new Date()); handleChange(x); }} onBlur={(x) => { handleBlur(x); setSelectedDevices(values.sampleExaminationDevices); setPageRefresh(new Date()) }} name='sampleExaminationDevices'></input> {item.name+" "+item.brand} </label>  </div>
+
+                                                    }
+
+                                                })
+                                            }
+                                        </div>
+                                        <div className='col-12 mb-3'>
+                                            <div className='row col-5'>
+                                           Fiyatlandırma
+                                            </div>
+                                            {/* <textarea type="text" id="description" className="form-control" onChange={handleChange} onBlur={handleBlur} ></textarea> */}
+                                        </div>
+                                          
 
                                         <div className='col-12 mb-3'>
                                             <ErrorMessage name="description" component="div" className='text-danger danger-alert-form' />
-                                            <label className='input-label'>Laboratuvar Açıklama</label>
+                                            <label className='input-label'>Tetkik Açıklama</label>
                                             <Field as="textarea" name="description" className="form-control">
                                             </Field>
                                             {/* <textarea type="text" id="description" className="form-control" onChange={handleChange} onBlur={handleBlur} ></textarea> */}
-
                                         </div>
                                         <div className='row col-12 mt-4'>
                                             <div className='col-3'>
@@ -167,14 +233,14 @@ export default function Index() {
                 <Modal isOpen={modalSetUser}
                     toggle={toggleSetUserModal}
                     modalTransition={{ timeout: 100 }}>
-                  <ModalHeader cssModule={{ 'modal-title': 'w-100 text-center' }}>
-                            <div className="d-flex justify-content-center mb-2">
-                            </div>
-                            <div className="d-flex ">
-                                <p>Laboratuvar Kullanıcı Atama </p>
-                            </div>
-                        </ModalHeader>    <ModalBody>
-                      
+                    <ModalHeader cssModule={{ 'modal-title': 'w-100 text-center' }}>
+                        <div className="d-flex justify-content-center mb-2">
+                        </div>
+                        <div className="d-flex ">
+                            <p>Tetkik Kullanıcı Atama </p>
+                        </div>
+                    </ModalHeader>    <ModalBody>
+
 
                         <div className='row col-12'>
                             <SetUserOnLanoratory laboratory={selectedLaboratory}></SetUserOnLanoratory>
@@ -185,14 +251,14 @@ export default function Index() {
                 <Modal isOpen={modalDevice}
                     toggle={toggleDeviceModal}
                     modalTransition={{ timeout: 100 }}>
-                       <ModalHeader cssModule={{ 'modal-title': 'w-100 text-center' }}>
-                            <div className="d-flex justify-content-center mb-2">
-                            </div>
-                            <div className="d-flex ">
-                                <p>Laboratuvar Cihazları Atama </p>
-                            </div>
-                        </ModalHeader>   <ModalBody>
-                  
+                    <ModalHeader cssModule={{ 'modal-title': 'w-100 text-center' }}>
+                        <div className="d-flex justify-content-center mb-2">
+                        </div>
+                        <div className="d-flex ">
+                            <p>Tetkik Cihazları Atama </p>
+                        </div>
+                    </ModalHeader>   <ModalBody>
+
 
                         <div className='row col-12'>
                             <SetDeviceOnLanoratory laboratory={selectedLaboratory}></SetDeviceOnLanoratory>
@@ -208,8 +274,8 @@ export default function Index() {
                         {createEditPage &&
                             <>
                                 <div className='text-center mb-2'>
-                                    <h1><b>Laboratuvar Tanımlama</b></h1>
-                                    <span style={{ fontSize: 18 }}>Laboratuvar bilgilerinizi sisteme tanıtın.</span>
+                                    <h1><b>Tetkik Tanımlama</b></h1>
+                                    <span style={{ fontSize: 18 }}>Tetkik bilgilerinizi sisteme tanıtın.</span>
                                 </div>
 
 
@@ -219,8 +285,8 @@ export default function Index() {
                     </div>
                     {!createEditPage &&
                         <div className='card'>
-                            <DataTable Refresh={refreshDatatable} DataUrl={"Laboratory/GetCurrentTopicLaboratory"} Headers={[
-                                ["name", "Laboratuvar Adı"],
+                            <DataTable Refresh={refreshDatatable} DataUrl={"SampleExamination/GetAllSampleExaminationByCurrentTopic"} Headers={[
+                                ["name", "Tetkik Adı"],
                                 {
                                     header: "Atanmış Kullanıcılar",
                                     dynamicButton: (d) => {
@@ -236,9 +302,9 @@ export default function Index() {
                                     }
                                 }
 
-                            ]} Title={"Kayıtlı Laboratuvar Listesi"}
-                                Description={"Laboratuvar tanımlayıp, tanımladığınız laboratuvarlara görevli atama işlemi yapabilirsiniz."}
-                                HeaderButton={{ text: "Laboratuvar Ekle", action: () => { setInitialValues({}); toggleModal(true); } }}
+                            ]} Title={"Kayıtlı Tetkik Listesi"}
+                                Description={"Tetkik tanımlayıp, tanımladığınız Tetkiklara görevli atama işlemi yapabilirsiniz."}
+                                HeaderButton={{ text: "Tetkik Ekle", action: () => { setInitialValues({}); toggleModal(true); } }}
                                 EditButton={editData}
                                 DeleteButton={deleteData}
                             ></DataTable>

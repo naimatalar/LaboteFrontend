@@ -90,7 +90,7 @@ export default function CreateUser() {
 
                                 setTimeout(async () => {
 
-                                    var data = await PostNoneToken("auth/UserCreate", values)
+                                    var data = await PostNoneToken("auth/SignUp", values)
                                     location.reload()
                                     setSubmitting(false);
                                 }, 400);

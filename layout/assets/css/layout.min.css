@@ -2018,3 +2018,14 @@ margin-right: 20px;
 .nav-group-sub{
     background: #103f3b !important;
 }
+.tbls thead{
+    background: #646262;
+}
+.tbls th,.tbls td{
+    padding: 5px;
+}
+.select-all-label label{
+    border: 1px solid #40b700;
+    padding: 4px 8px 4px 8px;
+    border-radius: 6px;
+}
