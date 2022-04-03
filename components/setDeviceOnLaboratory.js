@@ -64,7 +64,7 @@ function SetDeviceOnLanoratory({ laboratory }) {
                     </div>
                 </div>
                 <div className='row col-12 mb-3 mt-3' style={{fontSize:14}}>
-                   <b>{laboratory?.name+" "} </b> &nbsp; <span>Adlı Laboratuvar'a Atanmış Kullanıcı Listesi.</span> 
+                   <b>{laboratory?.name} </b>  <span> Adlı Laboratuvar`a Atanmış Kullanıcı Listesi.</span> 
                 </div>
                 {devices.length==0&& <i><b style={{color:"red"}}>Tanımlanmış Cihaz Bulunmuyor</b></i>}
                 {devices.length>0&&
@@ -81,7 +81,7 @@ function SetDeviceOnLanoratory({ laboratory }) {
                     <tbody>
                         {
                             devices.map((item, key) => {
-                                return <tr>
+                                return <tr key={key}>
                                     <td>
                                         {item.name}
                                     </td>
@@ -109,7 +109,7 @@ function SetDeviceOnLanoratory({ laboratory }) {
                
             </div>
         </div>
-    );
+    )
 }
 
 export default SetDeviceOnLanoratory;

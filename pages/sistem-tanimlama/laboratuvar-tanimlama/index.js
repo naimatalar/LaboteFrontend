@@ -110,6 +110,7 @@ export default function Index() {
                             <div className="d-flex ">
                                 <p>Laboratuvar <b>Tanımlama</b> Formu</p>
                             </div>
+                            <button onClick={toggleModal} type='button' className='modal-close-button btn btn-danger btn-sm p-1'><i className='fas fa-times'></i></button>
                         </ModalHeader>  <ModalBody>
                         
                         <Formik
@@ -124,7 +125,7 @@ export default function Index() {
                             onSubmit={(values, { setSubmitting }) => {
                                 values.code = ""
                                 setTimeout(async () => {
-                                    submit(values)
+                                    await submit(values)
                                     setSubmitting(false);
                                 }, 400);
                             }}
@@ -173,6 +174,8 @@ export default function Index() {
                             <div className="d-flex ">
                                 <p>Laboratuvar Kullanıcı Atama </p>
                             </div>
+                            <button onClick={toggleSetUserModal} type='button' className='modal-close-button btn btn-danger btn-sm p-1'><i className='fas fa-times'></i></button>
+
                         </ModalHeader>    <ModalBody>
                       
 
@@ -191,6 +194,8 @@ export default function Index() {
                             <div className="d-flex ">
                                 <p>Laboratuvar Cihazları Atama </p>
                             </div>
+                            <button onClick={toggleDeviceModal} type='button' className='modal-close-button btn btn-danger btn-sm p-1'><i className='fas fa-times'></i></button>
+
                         </ModalHeader>   <ModalBody>
                   
 

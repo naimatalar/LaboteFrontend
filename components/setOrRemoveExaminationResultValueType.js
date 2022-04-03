@@ -3,34 +3,34 @@ import React, { useEffect, useState } from 'react';
 import { GetWithToken, PostWithToken } from '../pages/api/crud';
 
 
-function SetOrRemoveDeviceSampleReferenceValue({ device }) {
+function SetOrRemoveExaminationResultValueType({ Examination }) {
     useEffect(() => {
         start()
     }, [])
-    const [deviceResultTypes, setDeviceResultTypes] = useState([]);
+    const [sampleExaminationResultTypes, setSampleExaminationReulstTypes] = useState([]);
     const [initialDeviceResultValueValues, setInitialDeviceResultValueValues] = useState({});
 
 
     const start = async () => {
 
-        var laborat = await GetWithToken("Device/GetDeviceResultValueSampleUnitReferences/" + device.id)
+        var laborat = await GetWithToken("SampleExamination/GetSampleExaminationResultValueType/" + Examination.id)
             .then(x => { return x.data }).catch(x => { return false })
-        setDeviceResultTypes(laborat.data);
+        setSampleExaminationReulstTypes(laborat.data);
 
     }
     const deleteValue = async (id) => {
 
-        var laborat = await GetWithToken("Device/DeleteDeviceResultValueTypeSampleReference/" + id)
+        var laborat = await GetWithToken("SampleExamination/DeleteSampleExaminationResultValueType/" + id)
             .then(x => { return x.data }).catch(x => { return false })
-        start();
+       start();
 
     }
 
     const submit = async (value) => {
 
-        var laborat = await PostWithToken("Device/CreateDeviceResultValueTypeSampleReference", value)
+        var laborat = await PostWithToken("SampleExamination/CreateSampleExaminationResultValueType", value)
             .then(x => { return x.data }).catch(x => { return false })
-        start()
+            start()
     }
 
 
@@ -39,10 +39,10 @@ function SetOrRemoveDeviceSampleReferenceValue({ device }) {
         <div className='row col-12'>
             <div className='col-12 tbls'>
                 <div className='row justify-content-center mb-2'>
-                    <div className='row col-12 mb-3' style={{ fontSize: 12 }}>
-                        <b><i>Referans miktar değeri; analiz edilecek numunenin hangi birim ile alınacağınını belirtir. Örnein gelen numuneye 100 gram üzerinden analiz sağlanacak ise bu değer aşağıdan cihaza tanımlanmalıdır. </i></b>
+                <div className='row col-12 mb-3' style={{ fontSize: 12 }}>
+                    <b><i>Analiz sonuç değeri; analiz işlemi bittiğinde sonuçun hangi değerler alacağını tanımlama yapar. Analiz sürecinde bu verilerden yardım alınır   </i></b>
 
-                    </div>
+                </div>
                     <Formik
                         initialValues={initialDeviceResultValueValues}
                         validate={values => {
@@ -52,7 +52,7 @@ function SetOrRemoveDeviceSampleReferenceValue({ device }) {
                         }}
                         onSubmit={(values, { setSubmitting }) => {
                             
-                            values.deviceId = device.id
+                            values.sampleExaminationId = Examination.id
                             setTimeout(async () => {
                                 await submit(values)
                                 setSubmitting(false);
@@ -67,17 +67,17 @@ function SetOrRemoveDeviceSampleReferenceValue({ device }) {
                                     <Field type="hidden" name="id" />
                                     <div className='col-6 mb-3'>
                                         <ErrorMessage name="measurementUnit" component="div" className='text-danger danger-alert-form' />
-                                        <label className='input-label'>Miktar Birimi Kodu</label>
+                                        <label className='input-label'>Sonuç Değeri Birimi Kodu</label>
                                         <Field type="text" id="measurementUnit" className="form-control" name="measurementUnit" />
                                     </div>
                                     <div className='col-6 mb-3'>
                                         <ErrorMessage name="measurementUnitLongName" component="div" className='text-danger danger-alert-form' />
-                                        <label className='input-label'>Miktar Birimi Açılımı</label>
+                                        <label className='input-label'>Sonuç Değeri Birimi Açılımı</label>
                                         <Field type="text" id="measurementUnitLongName" className="form-control" name="measurementUnitLongName" />
                                     </div>
                                     <div className='col-6 mb-3'>
                                         <ErrorMessage name="measureUnitType" component="div" className='text-danger danger-alert-form' />
-                                        <label className='input-label'>Miktar Birimi Değer Türü</label>
+                                        <label className='input-label'>Sonuç Değeri Birimi Değer Türü</label>
                                         <select name="measureUnitType" id="measureUnitType" onBlur={handleBlur} onChange={handleChange} className='form-control'>
                                             <option>
                                                 Seçiniz
@@ -99,7 +99,7 @@ function SetOrRemoveDeviceSampleReferenceValue({ device }) {
                                     </div>
                                     <div className='col-6 mb-3'>
                                         <ErrorMessage name="measureUnitSymbol" component="div" className='text-danger danger-alert-form' />
-                                        <label className='input-label'>Miktar Birimi Sembolü</label>
+                                        <label className='input-label'>Sonuç Değeri Birimi Sembolü</label>
                                         <Field type="text" id="measureUnitSymbol" className="form-control" name="measureUnitSymbol" />
                                     </div>
 
@@ -114,26 +114,26 @@ function SetOrRemoveDeviceSampleReferenceValue({ device }) {
                     </Formik>
                 </div>
                 <div className='row col-12 mb-3 mt-3' style={{ fontSize: 18 }}>
-                    <b>{device?.name + " "} </b> <span>Adlı Cihazın Numune Referans Miktar Değerleri Listesi.</span>
+                    <b>{Examination?.name + " "} </b>  <span>Adlı Analiz!in Sonuç Değerleri Listesi.</span>
                 </div>
-
-                {deviceResultTypes.length == 0 && <i><b style={{ color: "red" }}>Tanımlanmış Sonuç Değeri Bulunmuyor</b></i>}
-                {deviceResultTypes.length > 0 &&
+  
+                {sampleExaminationResultTypes.length == 0 && <i><b style={{ color: "red" }}>Tanımlanmış Sonuç Değeri Bulunmuyor</b></i>}
+                {sampleExaminationResultTypes.length > 0 &&
 
 
                     <table className='table table-bordered'>
                         <thead>
                             <tr>
-                                <th>Miktar Birimi Kodu</th>
-                                <th>Miktar Birimi Açılımı</th>
-                                <th>Miktar Birimi Değer Türü</th>
-                                <th>Miktar Birimi Sembolü</th>
+                                <th>Sonuç Değeri Birimi Kodu</th>
+                                <th>Sonuç Değeri Birimi Açılımı</th>
+                                <th>Sonuç Değeri Birimi Değer Türü</th>
+                                <th>Sonuç Değeri Birimi Sembolü</th>
                                 <th>#</th>
                             </tr>
                         </thead>
                         <tbody>
                             {
-                                deviceResultTypes.map((item, key) => {
+                                sampleExaminationResultTypes.map((item, key) => {
                                     return <tr key={key}>
                                         <td>
                                             {item.measurementUnit}
@@ -163,4 +163,4 @@ function SetOrRemoveDeviceSampleReferenceValue({ device }) {
     );
 }
 
-export default SetOrRemoveDeviceSampleReferenceValue;
+export default SetOrRemoveExaminationResultValueType;

@@ -1,8 +1,8 @@
 
-import React, { useEffect, useState } from 'react';
+import React, { cloneElement, useEffect, useState } from 'react';
 import { Dropdown, DropdownMenu, DropdownToggle } from 'reactstrap';
 
-import { GetWithToken } from '../pages/api/crud';
+import { GetWithToken, PostWithToken } from '../pages/api/crud';
 import { confirmAlert } from 'react-confirm-alert';
 // import 'react-confirm-alert/src/react-confirm-alert.css';
 import ReactPaginate from 'react-paginate';
@@ -13,7 +13,7 @@ export default function DataTable({ Refresh = null, Title, Description, Headers 
     const [data, setData] = useState([])
     const [toggleActions, setToggleActions] = useState({ toggle: false, key: 0 })
     const [selectedPage, setSelectedPage] = useState(1)
-    const [pagination, setPagination] = useState(0)
+    const [pagination, setPagination] = useState()
 
     const toggleAction = (key) => setToggleActions({ toggle: !toggleActions.toggle, key: key })
     useEffect(() => {
@@ -21,15 +21,16 @@ export default function DataTable({ Refresh = null, Title, Description, Headers 
         start()
     }, [Refresh])
     const start = async () => {
-        
+
         if (Pagination) {
-            var d = await GetWithToken(DataUrl + "/" + Pagination).then(x => { return x.data })
-            setSelectedPage(Pagination)
+            var d = await PostWithToken(DataUrl, Pagination).then(x => { return x.data })
+            setSelectedPage(Pagination.pageNumber)
+            setPagination(d.data.totalCount);
             setData(d.data.list)
         } else {
             var d = await GetWithToken(DataUrl).then(x => { return x.data })
             setData(d.data)
-        } 
+        }
         // if (d.data?.pageNumber) {
 
 
@@ -44,7 +45,8 @@ export default function DataTable({ Refresh = null, Title, Description, Headers 
 
         setSelectedPage(data.selected + 1)
 
-        var d = await GetWithToken(DataUrl + "/" + (data.selected + 1)).then(x => { return x.data })
+        var d = await PostWithToken(DataUrl, { pageSize: Pagination.pageSize, pageNumber: data.selected + 1 }).then(x => { return x.data })
+
 
         setData(d.data.list)
     }
@@ -91,6 +93,7 @@ export default function DataTable({ Refresh = null, Title, Description, Headers 
                         {
                             Headers?.map((item, key) => {
 
+
                                 if (item?.header) {
                                     return (<th key={key}>{item.header}</th>)
                                 } else {
@@ -126,7 +129,44 @@ export default function DataTable({ Refresh = null, Title, Description, Headers 
 
                                     return (<td key={jkey + key}><button className={'btn btn-sm btn-info'} onClick={() => { jitem.onClick(item) }}>{jitem.text}</button> {jitem.button}</td>)
                                 } else {
-                                    return (<td key={jkey + key}>{(jitem[2] == "money" && PriceSplitter(item[jitem[0]]) + " ₺") || item[jitem[0]]}</td>)
+
+                                    if (jitem[0].includes(".")) {
+                                        var splt = jitem[0].split(".")
+                                        var tbls = item[splt[0]].map((item, key) => {
+                                            var vll = jitem[2].split("|")
+
+                                            var endValue = item[vll[0]]
+
+                                            if (vll.length > 1) {
+                                                if (vll[1] == "price") {
+                                                    endValue = PriceSplitter(item[vll[0]])
+                                                }
+                                            }
+                                            return <div key={key} className='price-table-view'>{endValue + " " + item[jitem[3]]}</div>
+                                        })
+
+                                        if (tbls != "") {
+
+                                            return (<td key={jkey + key}>{tbls}</td>)
+
+                                        } else {
+                                            return (<td key={jkey + key}>{" - "}</td>)
+
+                                        }
+                                        // return (<td key={jkey + key}>{tbls}</td>)
+
+                                    } else {
+                                        
+                                        if (item[jitem[0]]) {
+                                            return (<td key={jkey + key}>{(jitem[2] == "money" && PriceSplitter(item[jitem[0]]) + " " + jitem[3]) || item[jitem[0]]}</td>)
+
+
+                                        } else {
+                                            return (<td key={jkey + key} style={{textAlign:"center"}} ><b style={{fontSize:19}}>{" - "}</b></td>)
+
+                                        }
+
+                                    }
                                 }
 
                             })}  {HideButtons != true &&
@@ -145,7 +185,7 @@ export default function DataTable({ Refresh = null, Title, Description, Headers 
 
                                                         </div>
                                                             <div className='col-12 text-center'>
-                                                                <button className='btn btn-outline-success' onClick={() => { EditButton(item) }}><i className="icon-pencil"></i> Dücenle</button>
+                                                                <button className='btn btn-outline-success' onClick={() => { EditButton(item) }}><i className="icon-pencil"></i> Düzenle</button>
 
                                                             </div></>
 
@@ -165,7 +205,7 @@ export default function DataTable({ Refresh = null, Title, Description, Headers 
                 </tbody>
             </table>
             <div className='row justify-content-center mt-4'>
-                {data?.length > 0 && <ReactPaginate
+                {data?.length > 0 && Pagination && <ReactPaginate
                     className="pager-base"
                     pageLinkClassName="pager-list"
                     breakLabel="..."

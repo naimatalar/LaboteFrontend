@@ -63,7 +63,7 @@ function SetUserOnLanoratory({ laboratory }) {
                     </div>
                 </div>
                 <div className='row col-12 mb-3 mt-3' style={{fontSize:14}}>
-                   <b>{laboratory?.name+" "} </b> &nbsp; <span>Adlı Laboratuvar'a Atanmış Kullanıcı Listesi.</span> 
+                   <b>{laboratory?.name+" "} </b>  <span>Adlı Laboratuvar`a Atanmış Kullanıcı Listesi.</span> 
                 </div>
                 {users.length==0&& <i><b style={{color:"red"}}>Tanımlanmış Kullanıcı Bulunmuyor</b></i>}
                 {users.length>0&&
@@ -80,13 +80,13 @@ function SetUserOnLanoratory({ laboratory }) {
                     <tbody>
                         {
                             users.map((item, key) => {
-                                return <tr>
+                                return <tr key={key}>
                                     <td>
                                         {item.firstName + " " + item.lastname}
                                     </td>
                                     <td>
                                         {item.role.map((jitem, jkey) => {
-                                            return <span>{jitem}</span>
+                                            return <span key={jkey}>{jitem}</span>
                                         })}
                                     </td>
                                     <td>

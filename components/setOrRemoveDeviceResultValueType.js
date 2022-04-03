@@ -40,7 +40,7 @@ function SetOrRemoveDeviceResultValueType({ device }) {
             <div className='col-12 tbls'>
                 <div className='row justify-content-center mb-2'>
                 <div className='row col-12 mb-3' style={{ fontSize: 12 }}>
-                    <b><i>Ölçüm sonuç değeri; referans alınan numunenin tetkik edilmesi sonucunda cihazın kendine özel vereceği sonucun değerlerini tanımlanması yapılır.   </i></b>
+                    <b><i>Ölçüm sonuç değeri; referans alınan numunenin analiz edilmesi sonucunda cihazın kendine özel vereceği sonucun değerlerini tanımlanması yapılır.   </i></b>
 
                 </div>
                     <Formik
@@ -54,7 +54,7 @@ function SetOrRemoveDeviceResultValueType({ device }) {
                             debugger
                             values.deviceId = device.id
                             setTimeout(async () => {
-                                submit(values)
+                                await submit(values)
                                 setSubmitting(false);
                             }, 400);
                         }}
@@ -114,7 +114,7 @@ function SetOrRemoveDeviceResultValueType({ device }) {
                     </Formik>
                 </div>
                 <div className='row col-12 mb-3 mt-3' style={{ fontSize: 18 }}>
-                    <b>{device?.name + " "} </b> &nbsp; <span>Adlı Cihaz'ın Ölçüm Sonuç Değerleri Listesi.</span>
+                    <b>{device?.name } </b>  <span>Adlı Cihaz`ın Ölçüm Sonuç Değerleri Listesi.</span>
                 </div>
   
                 {deviceResultTypes.length == 0 && <i><b style={{ color: "red" }}>Tanımlanmış Sonuç Değeri Bulunmuyor</b></i>}
@@ -134,7 +134,7 @@ function SetOrRemoveDeviceResultValueType({ device }) {
                         <tbody>
                             {
                                 deviceResultTypes.map((item, key) => {
-                                    return <tr>
+                                    return <tr key={key}>
                                         <td>
                                             {item.measurementUnit}
                                         </td>

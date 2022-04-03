@@ -137,8 +137,6 @@ export const Modal = (props) => {
                                             value={formik.values[item.props.name]}
                                             className="form-control"
                                             suffix="₺"
-                                            
-                                            
                                         />
 
 

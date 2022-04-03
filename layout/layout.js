@@ -8,6 +8,7 @@ import Link from 'next/link';
 import Router, { useRouter } from 'next/router';
 import PermissionCheck from '../components/permissioncheck';
 import { addOrUpdateStorage, getLaboratoryFromStorage, storageMercahtKey } from '../components/localStorage';
+import PageLoading from './pageLoading';
 
 
 function Layout({ children, permissionControl = true }) {
@@ -113,11 +114,12 @@ function Layout({ children, permissionControl = true }) {
         setIsPageOk(true)
 
     }
+  
     if (permission == null) {
         return <></>
     }
     if (!isPageOk) {
-        return <></>
+        return <PageLoading></PageLoading>
     }
     return (
 
