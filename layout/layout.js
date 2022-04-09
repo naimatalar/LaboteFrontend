@@ -121,6 +121,7 @@ function Layout({ children, permissionControl = true }) {
     if (!isPageOk) {
         return <PageLoading></PageLoading>
     }
+ 
     return (
 
         <>

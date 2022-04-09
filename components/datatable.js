@@ -8,7 +8,7 @@ import { confirmAlert } from 'react-confirm-alert';
 import ReactPaginate from 'react-paginate';
 import { PriceSplitter } from './pricesptitter';
 
-export default function DataTable({ Refresh = null, Title, Description, Headers = [[] || { text: undefined, header: undefined, dynamicButton: undefined, onClick: undefined }], DataUrl, Pagination = undefined, HeaderButton = { text: "", action: (e) => { } }, EditButton = (e) => { }, DeleteButton = (e) => { }, HideButtons = false }) {
+export default function DataTable({ Refresh = null, Title, Description, Headers = [[] || { text: undefined, header: undefined, dynamicButton: undefined, onClick: undefined }], DataUrl, Pagination = undefined, HeaderButton = { text: "", action: (e) => { } }, EditButton = (e) => { }, DeleteButton = (e) => { }, HideButtons = false,NoDataPlaceholder }) {
 
     const [data, setData] = useState([])
     const [toggleActions, setToggleActions] = useState({ toggle: false, key: 0 })
@@ -71,7 +71,7 @@ export default function DataTable({ Refresh = null, Title, Description, Headers 
 
     return (
         <>
-            <div className="card-header header-elements-inline pb-0">
+            <div className="card-header header-elements-inline pb-0 mb-2">
                 <h5 className="card-title" style={{ fontSize: 25 }}>{Title}</h5>
                 <div className="header-elements">
                     <div className="list-icons">
@@ -83,7 +83,11 @@ export default function DataTable({ Refresh = null, Title, Description, Headers 
                 </div>
             </div>
 
-            <div className="card-body" style={{ fontSize: 17 }}>
+            <div className="card-body" style={{
+                fontSize: 15,
+                color: "#0db1a6",
+                fontStyle: "italic"
+            }}>
                 {Description}
             </div>
 
@@ -111,7 +115,7 @@ export default function DataTable({ Refresh = null, Title, Description, Headers 
                 <tbody>
                     {data?.length == 0 && <tr>
                         <td colSpan={Headers?.length + 1} className='text-center'>
-                            <b>Kayıt bulunamadı</b>
+                            <b>{NoDataPlaceholder||"Kayıt bulunamadı"}</b>
                         </td>
                     </tr>}
                     {data?.map((item, key) => {
@@ -156,13 +160,13 @@ export default function DataTable({ Refresh = null, Title, Description, Headers 
                                         // return (<td key={jkey + key}>{tbls}</td>)
 
                                     } else {
-                                        
+
                                         if (item[jitem[0]]) {
                                             return (<td key={jkey + key}>{(jitem[2] == "money" && PriceSplitter(item[jitem[0]]) + " " + jitem[3]) || item[jitem[0]]}</td>)
 
 
                                         } else {
-                                            return (<td key={jkey + key} style={{textAlign:"center"}} ><b style={{fontSize:19}}>{" - "}</b></td>)
+                                            return (<td key={jkey + key} style={{ textAlign: "center" }} ><b style={{ fontSize: 19 }}>{" - "}</b></td>)
 
                                         }
 

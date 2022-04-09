@@ -6,15 +6,15 @@ export function addOrUpdateStorage(key, value) {
     localStorage.setItem(key, value)
 
 }
-export   function getLaboratoryFromStorage () {
-    
+export function getLaboratoryFromStorage() {
+
     try {
-  
+
 
         return JSON.parse(localStorage.getItem(storageMercahtKey))
 
     } catch (error) {
-       
+
 
         return null;
     }

@@ -14,6 +14,7 @@ import { GetWithToken, PostWithToken } from '../../api/crud';
 import SetUserOnLanoratory from '../../../components/setUserOnLanoratory';
 import SetDeviceOnLanoratory from '../../../components/setDeviceOnLaboratory';
 import ReactSelect from 'react-select';
+import { getLaboratoryFromStorage } from '../../../components/localStorage';
 const isBrowser = typeof window === 'undefined'
 export default function Index() {
     const [createEditPage, setCreateEditPage] = useState(false)
@@ -31,14 +32,16 @@ export default function Index() {
     const [selectedExaminationValues, setSelectedExaminationValues] = React.useState({});
     const [refreshPage, setRefreshPage] = useState(new Date())
     const [selectSample, setSelectSample] = useState({})
+    const [laboatoryList, setLaboratoryList] = useState([])
 
 
 
-    const toggleModal = () => setModal(!modal);
+    const toggleModal = () => { if (laboatoryList.length==0) { setLaboratoryListFunc(); } setModal(!modal);  }
     const [modalSetUser, setModalSetUser] = React.useState(false);
-    const toggleSetUserModal = () => { setModalSetUser(!modalSetUser); if (modalSetUser) { setRefreshDatatable(new Date()) } };
+    const toggleSetUserModal = () => { setModalSetUser(!modalSetUser); if (!modalSetUser) { setRefreshDatatable(new Date()) } };
     const [modalBarcode, setModaBarcode] = React.useState(false);
     const toggleBarcodeModal = () => { setModaBarcode(!modalBarcode); if (modalBarcode) { setRefreshDatatable(new Date()) } };
+
     useEffect(() => {
 
         start();
@@ -48,11 +51,13 @@ export default function Index() {
 
         setLoading(false)
     }
-
+    const setLaboratoryListFunc = async () => {
+        var d = await GetWithToken("Laboratory/GetLaboratoryListByCurrentUser").then(x => { return x.data }).catch((e) => { AlertFunction("", e.response.data); return false })
+        setLaboratoryList(d.data)
+    }
     const getCustomerFunc = async (q) => {
         var d = await GetWithToken("CurrentCustomer/GetAllCurrentCustomerByName/" + q).then(x => { return x.data }).catch((e) => { AlertFunction("", e.response.data); return false })
         setCustomerList(d.data)
-
 
     }
 
@@ -124,8 +129,8 @@ export default function Index() {
         setInitialValues(d.data)
         setCustomerLabel(d.data.currentCustomerName)
         setExaminationValues(d.data.sampleExaminationSampleAcceptsSelectList)
-
-        toggleModal(true);
+        toggleModal()
+        
 
     }
 
@@ -191,6 +196,21 @@ export default function Index() {
                                             <ErrorMessage name="brand" component="div" className='text-danger danger-alert-form' />
                                             <label className='input-label'>Numune Marka</label>
                                             <Field type="text" id="brand" className="form-control" name="brand" />
+                                        </div>
+                                        <div className='col-6 mb-4'>
+                                            <ErrorMessage name="brand" component="div" className='text-danger danger-alert-form' />
+                                            <label className='input-label'>İlgili Laboratuvar</label>
+                                            <select className='form-control' onChange={handleChange} onBlur={handleBlur} name="laboratoryId" value={values.laboratoryId}>
+                                                <option>Seçiniz</option>
+
+                                                {laboatoryList.map((item, key) => {
+                                                    return <option key={key} value={item.id}>{item.name}</option>
+                                                })}
+                                            </select>
+                                        </div>
+                                        <div className='col-6 mb-4'>
+                                            <b className='text-danger'>Listede sadece yetkili olduğunuz laboratuvarlar görebilirsiniz.</b><br></br>
+                                            <i className='text-warning'>Eğer seçmeniz gereken laboratuvar listede yoksa yöneticinize danışınız!</i>
                                         </div>
 
                                         <div className='col-12 mb-4 row' style={{
@@ -429,18 +449,18 @@ export default function Index() {
 
                         <div className='row col-12'>
                             <div className='col-12'>
-                                <div style={{width:"288px",float:"left"}}>
+                                <div style={{ width: "288px", float: "left" }}>
                                     <img src={selectSample.barcodeImageString}></img>
                                     <div className='barcode-number'>{
                                         selectSample.barcode
                                     }</div>
                                 </div>
-                                <div style={{width:"100px",float:"left"}}>
-                                  
-                                    <div style={{width:"100%",float:"left"}}>
+                                <div style={{ width: "100px", float: "left" }}>
+
+                                    <div style={{ width: "100%", float: "left" }}>
                                         {
-                                        selectSample.sampleName
-                                    }</div>
+                                            selectSample.sampleName
+                                        }</div>
                                     <button type='button'>Yazdır</button>
                                 </div>
 
@@ -470,7 +490,7 @@ export default function Index() {
                     </div>
                     {!createEditPage &&
                         <div className='card'>
-                            <DataTable Refresh={refreshDatatable} DataUrl={"SampleAccept/GetAllSampleAccept"} Headers={[
+                            <DataTable Refresh={refreshDatatable} DataUrl={"SampleAccept/GetAllSampleAcceptByLaboratoryId"} Headers={[
                                 ["sampleName", "Numune Adı"],
                                 ["brand", "Marka"],
                                 ["sampleAcceptStatus", "Numunenin Durumu"],
@@ -482,11 +502,11 @@ export default function Index() {
 
                                     dynamicButton: (data) => { return <button className='btn btn-sm btn-outline-info' title='Barkod Yazdır' onClick={(x) => { setSelectSample(data); toggleBarcodeModal(); }}><i className='fas fa-barcode'></i> {data.barcode} </button> }
                                 }
-                            ]} Title={"Numune Kabul Listesi"}
+                            ]} Title={<span><b>{getLaboratoryFromStorage()?.label}</b> Numune Listesi</span>}
                                 Description={"Cari hesaplarda düzenleme ve ekleme işlemini burdan yapabilirsiniz"}
                                 HeaderButton={{
                                     text: "Numune Kabul Oluştur", action: () => {
-                                        setModal(true)
+                                        toggleModal()
                                         setInitialValues({})
                                         setCustomerLabel("")
                                         setExaminationValues([])
@@ -494,7 +514,7 @@ export default function Index() {
                                 }}
                                 EditButton={editData}
                                 DeleteButton={deleteFunc}
-                                Pagination={{ pageNumber: 1, pageSize: 10 }}
+                                Pagination={{ pageNumber: 1, pageSize: 10,laboratoryId:getLaboratoryFromStorage()?.value }}
                             ></DataTable>
                         </div>
                     }
