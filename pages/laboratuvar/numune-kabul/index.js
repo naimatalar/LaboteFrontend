@@ -236,7 +236,7 @@ export default function Index() {
 
                                             <div className='col-12 mt-1' style={{ height: 38 }}>
                                                 {examinationValues.map((item, key) => {
-                                                    return <label className='examination-select-item' onClick={() => { removeExaminationItem(item) }}>{item.label} <span className='examination-item-close-button'><i style={{ fontSize: 12 }} className='fa fa-times'></i></span></label>
+                                                    return <label key={key} className='examination-select-item' onClick={() => { removeExaminationItem(item) }}>{item.label} <span className='examination-item-close-button'><i style={{ fontSize: 12 }} className='fa fa-times'></i></span></label>
                                                 })}
                                             </div>
                                         </div>

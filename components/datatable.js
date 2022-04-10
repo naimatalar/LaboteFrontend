@@ -85,7 +85,7 @@ export default function DataTable({ Refresh = null, Title, Description, Headers 
 
             <div className="card-body" style={{
                 fontSize: 15,
-                color: "#0db1a6",
+                color: "#069983",
                 fontStyle: "italic"
             }}>
                 {Description}

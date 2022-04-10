@@ -28,15 +28,16 @@ export default function Index() {
     const [selectedExamination, setSelectedExamination] = useState({})
 
     // Modal open state
-   
+
     const [devices, setDevices] = React.useState([]);
     const [selectAll, setSelectAll] = React.useState(false);
     const [currency, setCurrency] = React.useState();
     const [modelCurrencies, setModelCurrencies] = React.useState([]);
     const [selectedDevices, setSelectedDevices] = useState([]);
- 
+    const [laboatoryList, setLaboatoryList] = useState([]);
+
     const [modal, setModal] = React.useState(false);
-    const toggleModal = () => {setModal(!modal);if (!modal) { setSelectAll(false) } }
+    const toggleModal = () => { setModal(!modal); if (!modal) { setSelectAll(false) } }
 
     const [modalSetREsultValue, setModalSetREsultValue] = React.useState(false);
     const toggleSetREsultValueModal = () => setModalSetREsultValue(!modalSetREsultValue);
@@ -49,13 +50,20 @@ export default function Index() {
     const start = async () => {
 
         setLoading(false)
-        var laborat = await GetWithToken("Device/GetAllDevicesByTopic").then(x => { return x.data }).catch(x => { return false })
+        // var device = await GetWithToken("Device/GetAllDevicesByTopic").then(x => { return x.data }).catch(x => { return false })
+        var laboratories = await GetWithToken("Laboratory/GetCurrentTopicLaboratory").then(x => { return x.data }).catch(x => { return false })
 
-        setDevices(laborat.data)
+        setLaboatoryList(laboratories.data)
         // var roleSelectList = []
         // setRoles(roleSelectList)
     }
+    const getLaboratoryDevices = async (id) => {
 
+        var laboratories = await GetWithToken("Device/GetAllCurrentLaboratoryDevice/" + id).then(x => { return x.data }).catch(x => { return false })
+        setDevices(laboratories.data)
+        // var roleSelectList = []
+        // setRoles(roleSelectList)
+    }
     const submit = async (val) => {
 
 
@@ -92,9 +100,9 @@ export default function Index() {
 
         var d = await GetWithToken("sampleExamination/GetSampleExaminationById/" + data.id).then(x => { return x.data }).catch((e) => { AlertFunction("", e.response.data); return false })
         // setModaDevice(d.data.sampleExaminationDevices.map((item,key)=>{return item.id}))
-        var ccrnc=[]
+        var ccrnc = []
         for (const item of d.data?.sampleExaminationPriceCurrencies) {
-            ccrnc.push({currencyType:item.currencyType,price:item.price})
+            ccrnc.push({ currencyType: item.currencyType, price: item.price })
         }
         setModelCurrencies(ccrnc)
 
@@ -173,7 +181,7 @@ export default function Index() {
                                 values.sampleExaminationPriceCurrencies = modelCurrencies
                                 console.log(values)
                                 setTimeout(async () => {
-                                   await submit(values)
+                                    await submit(values)
                                     setSubmitting(false);
                                 }, 400);
                             }}
@@ -193,7 +201,17 @@ export default function Index() {
                                             <label className='input-label'>Metod</label>
                                             <Field type="text" id="sampleMethod" className="form-control" name="sampleMethod" />
                                         </div>
+                                        <div className='col-6 mb-3'>
+                                            <ErrorMessage name="laboratoryId" component="div" className='text-danger danger-alert-form' />
+                                            <label className='input-label'>Metod</label>
+                                            <select className='form-control' onChange={(x) => { handleChange(x); getLaboratoryDevices(x.target.value) }} onBlur={handleBlur} name="laboratoryId" value={values.laboratoryId}>
+                                                <option>Seçiniz</option>
 
+                                                {laboatoryList.map((item, key) => {
+                                                    return <option key={key} value={item.id}>{item.name}</option>
+                                                })}
+                                            </select>
+                                        </div>
 
                                         <div className='col-12 mb-3'>
                                             <ErrorMessage name="description" component="div" className='text-danger danger-alert-form' />
@@ -204,33 +222,39 @@ export default function Index() {
                                         </div>
 
                                         <div className='col-6 mb-4 row'>
-                                            <div className='col-12 p-0 mb-1'>
-                                                <b className='mt-2'>Analiz Sırasında Olası Kullanılacak Cihazlar</b>
-                                                <div className='mt-2 select-all-label'>
-                                                    {
-                                                        selectAll && <label>  <input checked={true} type={"checkbox"} onBlur={selectAllControl} onChange={selectAllControl} ></input> Tümünü Seç</label>
-                                                    }
-                                                    {
-                                                        !selectAll && <label>  <input type={"checkbox"} onChange={selectAllControl} onBlur={selectAllControl}   ></input> Tümünü Seç</label>
-                                                    }
-                                                </div>
-                                            </div>
-                                            {
-                                                pageRefresh &&
-                                                devices.map((item, key) => {
-
-
-
-                                                    var select = values?.sampleExaminationDevices?.filter(x => { ; return x == item.id }).length > 0
-                                                    if (selectAll) {
-                                                        return <div key={key} className={"col-5"}> <label> <input id={item.id} checked value={item.id} type="checkbox" onChange={(x) => { setSelectAll(false); handleChange(x); setSelectedDevices(values.sampleExaminationDevices); setPageRefresh(new Date()) }} onBlur={(x) => { handleBlur(x); setSelectedDevices(values.sampleExaminationDevices); setPageRefresh(new Date()) }} name='sampleExaminationDevices'></input> {item.name + " " + item.brand}</label>  </div>
-                                                    } else {
-                                                        return <div key={key} className="col-5"> <label> <input id={item.id} checked={select} value={item.id} type="checkbox" onChange={(x) => { setSelectAll(false); setSelectedDevices(values.sampleExaminationDevices); setPageRefresh(new Date()); handleChange(x); }} onBlur={(x) => { handleBlur(x); setSelectedDevices(values.sampleExaminationDevices); setPageRefresh(new Date()) }} name='sampleExaminationDevices'></input> {item.name + " " + item.brand} </label>  </div>
-
-                                                    }
-
-                                                })
+                                            {!values.laboratoryId &&
+                                                <span className='text-danger'>Kullanılacak cihazları seçmek için önce laboratuvar seçiniz</span>
                                             }
+                                            {devices.length > 0 &&
+                                                <>
+                                                    <div className='col-12 p-0 mb-1'>
+                                                        <b className='mt-2'>Analiz Sırasında Olası Kullanılacak Cihazlar</b>
+                                                        <div className='mt-2 select-all-label'>
+                                                            {
+                                                                selectAll && <label>  <input checked={true} type={"checkbox"} onBlur={selectAllControl} onChange={selectAllControl} ></input> Tümünü Seç</label>
+                                                            }
+                                                            {
+                                                                !selectAll && <label>  <input type={"checkbox"} onChange={selectAllControl} onBlur={selectAllControl}   ></input> Tümünü Seç</label>
+                                                            }
+                                                        </div>
+                                                    </div>
+                                                    {
+                                                        pageRefresh &&
+                                                        devices.map((item, key) => {
+
+
+
+                                                            var select = values?.sampleExaminationDevices?.filter(x => { ; return x == item.id }).length > 0
+                                                            if (selectAll) {
+                                                                return <div key={key} className={"col-5"}> <label> <input id={item.id} checked value={item.id} type="checkbox" onChange={(x) => { setSelectAll(false); handleChange(x); setSelectedDevices(values.sampleExaminationDevices); setPageRefresh(new Date()) }} onBlur={(x) => { handleBlur(x); setSelectedDevices(values.sampleExaminationDevices); setPageRefresh(new Date()) }} name='sampleExaminationDevices'></input> {item.name + " " + item.brand}</label>  </div>
+                                                            } else {
+                                                                return <div key={key} className="col-5"> <label> <input id={item.id} checked={select} value={item.id} type="checkbox" onChange={(x) => { setSelectAll(false); setSelectedDevices(values.sampleExaminationDevices); setPageRefresh(new Date()); handleChange(x); }} onBlur={(x) => { handleBlur(x); setSelectedDevices(values.sampleExaminationDevices); setPageRefresh(new Date()) }} name='sampleExaminationDevices'></input> {item.name + " " + item.brand} </label>  </div>
+
+                                                            }
+
+                                                        })
+                                                    }
+                                                </>}
                                         </div>
 
                                         <div className='col-6 mb-3'>
@@ -263,7 +287,7 @@ export default function Index() {
                                                 </div>
 
                                                 <div className='col-3'>
-                                                    <button className='btn btn-success'  type='button'  onClick={() => { setOrRemoveCurrency()}}><i className='fas fa-plus-circle'></i> Ekle</button>
+                                                    <button className='btn btn-success' type='button' onClick={() => { setOrRemoveCurrency() }}><i className='fas fa-plus-circle'></i> Ekle</button>
                                                 </div>
                                                 <div className='col-12 mt-2'>
                                                     <table style={{ width: "100%" }} className="table table-bordered">
@@ -330,17 +354,17 @@ export default function Index() {
                     toggle={toggleSetREsultValueModal}
                     size='lg'
                     modalTransition={{ timeout: 100 }}>
-                  <ModalHeader cssModule={{ 'modal-title': 'w-100 text-center' }}>
-                            <div className="d-flex justify-content-center mb-2">
-                            </div>
-                            <div className="d-flex ">
-                                <p>Analiz Sonuç Değerleri Tanımlama  </p>
-                            </div>
-                            <button onClick={toggleSetREsultValueModal} type='button' className='modal-close-button btn btn-danger btn-sm p-1'><i className='fas fa-times'></i></button>
+                    <ModalHeader cssModule={{ 'modal-title': 'w-100 text-center' }}>
+                        <div className="d-flex justify-content-center mb-2">
+                        </div>
+                        <div className="d-flex ">
+                            <p>Analiz Sonuç Değerleri Tanımlama  </p>
+                        </div>
+                        <button onClick={toggleSetREsultValueModal} type='button' className='modal-close-button btn btn-danger btn-sm p-1'><i className='fas fa-times'></i></button>
 
-                        </ModalHeader>  
-                          <ModalBody>
-                      
+                    </ModalHeader>
+                    <ModalBody>
+
 
                         <div className='row col-12'>
                             <SetOrRemoveExaminationResultValueType Examination={selectedExamination}></SetOrRemoveExaminationResultValueType>
@@ -372,7 +396,7 @@ export default function Index() {
                                 ["name", "Analiz Adı"],
                                 ["sampleMethod", "Analiz Metodu"],
                                 ["sampleExaminationDevicesCount", "Cihaz Adet"],
-                                ["sampleExaminationPriceCurrencies.price", "Cihaz Adet","price|price","currenyTypeName"],
+                                ["sampleExaminationPriceCurrencies.price", "Cihaz Adet", "price|price", "currenyTypeName"],
 
 
                                 {
@@ -385,7 +409,7 @@ export default function Index() {
 
                             ]} Title={"Kayıtlı Analiz Listesi"}
                                 Description={"Analiz tanımlayıp, tanımladığınız Analizlara görevli atama işlemi yapabilirsiniz."}
-                                HeaderButton={{ text: "Analiz Ekle", action: () => { setInitialValues({}); toggleModal(true);setModelCurrencies([]) } }}
+                                HeaderButton={{ text: "Analiz Ekle", action: () => { setInitialValues({}); toggleModal(true); setModelCurrencies([]) } }}
                                 EditButton={editData}
                                 DeleteButton={deleteData}
                             ></DataTable>
