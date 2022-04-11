@@ -33,10 +33,12 @@ export default function Index() {
     const [refreshPage, setRefreshPage] = useState(new Date())
     const [selectSample, setSelectSample] = useState({})
     const [laboatoryList, setLaboratoryList] = useState([])
+    const [examinationInputVal, setExaminationInputVal] = useState()
+    const [examinationVal, setExaminationtVal] = useState("")
 
 
 
-    const toggleModal = () => { if (laboatoryList.length==0) { setLaboratoryListFunc(); } setModal(!modal);  }
+    const toggleModal = () => { if (laboatoryList.length == 0) { setLaboratoryListFunc(); } setModal(!modal); }
     const [modalSetUser, setModalSetUser] = React.useState(false);
     const toggleSetUserModal = () => { setModalSetUser(!modalSetUser); if (!modalSetUser) { setRefreshDatatable(new Date()) } };
     const [modalBarcode, setModaBarcode] = React.useState(false);
@@ -61,14 +63,22 @@ export default function Index() {
 
     }
 
-    const getExaminationDelectFunc = async (q) => {
+    const getExaminationDelectFunc = async (q, laboratoryId) => {
+        
+       
+        if (!laboratoryId || laboratoryId == "Seçiniz") {
+            AlertFunction("Uyarı", "Analiz seçmek için önce ilgili laboratuvarı seçiniz.")
+            return {}
+        }
+        var d2 = await GetWithToken("SampleExamination/GetSampleExaminationByQuery/" + laboratoryId + "/" + q).then(x => { return x.data }).catch((e) => { AlertFunction("", e.response.data); return false })
 
-        var d2 = await GetWithToken("SampleExamination/GetSampleExaminationByQuery/" + q).then(x => { return x.data }).catch((e) => { AlertFunction("", e.response.data); return false })
         var mmp = d2.data.map((item, key) => {
+
             return { label: item.name, value: item.id }
         })
 
         setExaminationSelectList(mmp)
+        setRefreshPage(new Date())
 
     }
 
@@ -130,7 +140,7 @@ export default function Index() {
         setCustomerLabel(d.data.currentCustomerName)
         setExaminationValues(d.data.sampleExaminationSampleAcceptsSelectList)
         toggleModal()
-        
+
 
     }
 
@@ -200,7 +210,7 @@ export default function Index() {
                                         <div className='col-6 mb-4'>
                                             <ErrorMessage name="brand" component="div" className='text-danger danger-alert-form' />
                                             <label className='input-label'>İlgili Laboratuvar</label>
-                                            <select className='form-control' onChange={handleChange} onBlur={handleBlur} name="laboratoryId" value={values.laboratoryId}>
+                                            <select className='form-control' onChange={(x)=>{handleChange(x);setExaminationSelectList([]); setExaminationValues([]);setExaminationInputVal("");setExaminationtVal("")}} onBlur={handleBlur} name="laboratoryId" value={values.laboratoryId}>
                                                 <option>Seçiniz</option>
 
                                                 {laboatoryList.map((item, key) => {
@@ -223,15 +233,18 @@ export default function Index() {
                                             <div className='col-10'>
                                                 <ReactSelect
                                                     isClearable
-                                                    onInputChange={(x) => { getExaminationDelectFunc(x) }}
+                                                    inputValue={examinationInputVal}
+                                                    escapeClearsValue={true}
+                                                    value={examinationVal}
+                                                    onInputChange={(x) => { getExaminationDelectFunc(x, values.laboratoryId);setExaminationInputVal(x) }}
                                                     styles={{ menu: base => ({ ...base, zIndex: 9999 }) }}
-                                                    onChange={(x) => { setSelectedExaminationValues(x) }}
+                                                    onChange={(x) => { setSelectedExaminationValues(x); setExaminationtVal(x) }}
                                                     options={examinationSelectList}>
 
                                                 </ReactSelect>
                                             </div>
                                             <div className='col-2'>
-                                                <button type='button' onClick={() => { setExaminationValuesFun() }} className='btn btn-outline-info p-0 pl-4 pr-4 pt-1 pb-1'>Ekle</button>
+                                                <button type='button' onClick={() => { setExaminationValuesFun();setExaminationInputVal("");setExaminationtVal("")  }} className='btn btn-outline-info p-0 pl-4 pr-4 pt-1 pb-1'>Ekle</button>
                                             </div>
 
                                             <div className='col-12 mt-1' style={{ height: 38 }}>
@@ -271,7 +284,7 @@ export default function Index() {
                                             <div className='col-11 '>
                                                 <ErrorMessage name="sampleAcceptBringingType" component="div" className='text-danger danger-alert-form' />
                                                 <label className='input-label'>Numune Cari</label>
-                                                <input value={customerLabel} type={"text"} className="form-control"></input>
+                                                <input value={customerLabel} type={"text"} onClick={()=>{getCustomerFunc(""); setShowCustomerList(true)}} className="form-control"></input>
                                             </div>
                                             <div className='col-1 text-right'>
                                                 <button type='button' className='btn btn-outline-info' onClick={() => { getCustomerFunc(""); setShowCustomerList(true) }}>...</button>
@@ -510,11 +523,12 @@ export default function Index() {
                                         setInitialValues({})
                                         setCustomerLabel("")
                                         setExaminationValues([])
+                                        setExaminationSelectList([])
                                     }
                                 }}
                                 EditButton={editData}
                                 DeleteButton={deleteFunc}
-                                Pagination={{ pageNumber: 1, pageSize: 10,laboratoryId:getLaboratoryFromStorage()?.value }}
+                                Pagination={{ pageNumber: 1, pageSize: 10, laboratoryId: getLaboratoryFromStorage()?.value }}
                             ></DataTable>
                         </div>
                     }

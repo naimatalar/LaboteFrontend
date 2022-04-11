@@ -54,6 +54,7 @@ export default function Index() {
         var laboratories = await GetWithToken("Laboratory/GetCurrentTopicLaboratory").then(x => { return x.data }).catch(x => { return false })
 
         setLaboatoryList(laboratories.data)
+        
         // var roleSelectList = []
         // setRoles(roleSelectList)
     }
@@ -92,6 +93,7 @@ export default function Index() {
         if (d.isError) {
             AlertFunction("İşlem Yapılamadı", d?.message)
         }
+       
         setRefreshDatatable(new Date())
     }
 
@@ -107,6 +109,7 @@ export default function Index() {
         setModelCurrencies(ccrnc)
 
         setInitialValues(d.data)
+        getLaboratoryDevices(d.data?.laboratoryId)
         toggleModal(true);
     }
 
@@ -225,7 +228,10 @@ export default function Index() {
                                             {!values.laboratoryId &&
                                                 <span className='text-danger'>Kullanılacak cihazları seçmek için önce laboratuvar seçiniz</span>
                                             }
-                                            {devices.length > 0 &&
+                                              {values.laboratoryId && (!devices?.length||devices?.length==0)&&
+                                                <span className='text-danger'>Bu lobarotuvara tanımlı cihaz bulunamadı</span>
+                                            }
+                                            {devices?.length > 0 &&
                                                 <>
                                                     <div className='col-12 p-0 mb-1'>
                                                         <b className='mt-2'>Analiz Sırasında Olası Kullanılacak Cihazlar</b>
@@ -409,7 +415,7 @@ export default function Index() {
 
                             ]} Title={"Kayıtlı Analiz Listesi"}
                                 Description={"Analiz tanımlayıp, tanımladığınız Analizlara görevli atama işlemi yapabilirsiniz."}
-                                HeaderButton={{ text: "Analiz Ekle", action: () => { setInitialValues({}); toggleModal(true); setModelCurrencies([]) } }}
+                                HeaderButton={{ text: "Analiz Ekle", action: () => { setInitialValues({}); toggleModal(true); setModelCurrencies([]);setDevices([]) } }}
                                 EditButton={editData}
                                 DeleteButton={deleteData}
                             ></DataTable>
